@@ -2,155 +2,202 @@
   import { onDestroy } from 'svelte';
   import { musicPlaying, room } from '$lib/stores/state.js';
 
-  let ctx, masterGain;
+  let ctx, masterGain, reverbNode, delayNode;
   let started = false;
-  let chordTimer, melodyTimer;
-
- 
-
-  const PROGRESSIONS = [
-    [261.63, 220.00, 174.61, 196.00], 
-    [196.00, 164.81, 261.63, 293.66],
-    [293.66, 246.94, 196.00, 220.00], 
-    [220.00, 185.00, 174.61, 164.81], 
-    [164.81, 138.59, 220.00, 246.94], 
-  ];
-
-  
-  const CHORD_TYPES = [
-    [1, 1.2599, 1.4983, 1.8877], 
-    [1, 1.1892, 1.4983, 1.7818], 
-    [1, 1.2599, 1.4983, 1.8877],
-    [1, 1.2599, 1.4983, 1.8877], 
-  ];
-
+  let chordTimer, melodyTimer, padTimer;
   let chordIndex = 0;
   let currentRoom = 0;
 
-  // REVERB 
-  let reverbNode;
+  const ROOTS = [
+    [174.61, 196.00, 220.00, 246.94],
+    [196.00, 220.00, 246.94, 261.63],
+    [220.00, 246.94, 261.63, 293.66],
+    [246.94, 261.63, 293.66, 329.63],
+    [261.63, 293.66, 329.63, 349.23],
+  ];
+
+  const MAJ9   = [1, 1.2599, 1.4983, 1.7818, 2.2449];
+  const MIN9   = [1, 1.1892, 1.4983, 1.6818, 2.2449];
+  const ADD9   = [1, 1.2599, 1.4983, 2.2449];
+  const SUS2   = [1, 1.1225, 1.4983, 2.0];
+  const CHORDS = [MAJ9, SUS2, MIN9, ADD9, SUS2, MAJ9];
+
   function createReverb() {
-    const length  = ctx.sampleRate * 2.8;
-    const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
+    const len     = ctx.sampleRate * 4.2;
+    const impulse = ctx.createBuffer(2, len, ctx.sampleRate);
     for (let c = 0; c < 2; c++) {
       const d = impulse.getChannelData(c);
-      for (let i = 0; i < length; i++) {
-        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.0);
+      for (let i = 0; i < len; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.6);
       }
     }
     reverbNode = ctx.createConvolver();
     reverbNode.buffer = impulse;
-
-    const reverbGain = ctx.createGain();
-    reverbGain.gain.setValueAtTime(0.28, ctx.currentTime);
-    reverbNode.connect(reverbGain);
-    reverbGain.connect(masterGain);
+    const rg = ctx.createGain();
+    rg.gain.setValueAtTime(0.38, ctx.currentTime);
+    reverbNode.connect(rg);
+    rg.connect(masterGain);
   }
 
-  function playNote(freq, startTime, duration, amp = 0.07, wet = false) {
-    if (!ctx) return;
-
-    const osc1   = ctx.createOscillator();
-    const osc2   = ctx.createOscillator();
-    const gain   = ctx.createGain();
-    const filter = ctx.createBiquadFilter();
-
-    osc1.type = 'triangle';
-    osc2.type = 'triangle';
-    osc1.frequency.setValueAtTime(freq, startTime);
-    osc2.frequency.setValueAtTime(freq * 1.004, startTime); 
-
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(2000, startTime);
-    filter.Q.setValueAtTime(0.5, startTime);
-
- 
-    gain.gain.setValueAtTime(0, startTime);
-    gain.gain.linearRampToValueAtTime(amp, startTime + 0.035);
-    gain.gain.exponentialRampToValueAtTime(amp * 0.25, startTime + duration * 0.45);
-    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-
-    osc1.connect(filter);
-    osc2.connect(filter);
-    filter.connect(gain);
-    gain.connect(masterGain);
-    if (wet && reverbNode) gain.connect(reverbNode);
-
-    osc1.start(startTime); osc2.start(startTime);
-    osc1.stop(startTime + duration + 0.1);
-    osc2.stop(startTime + duration + 0.1);
+  function createDelay() {
+    delayNode = ctx.createDelay(2.0);
+    delayNode.delayTime.setValueAtTime(0.36, ctx.currentTime);
+    const df = ctx.createGain();
+    df.gain.setValueAtTime(0.22, ctx.currentTime);
+    delayNode.connect(df);
+    df.connect(delayNode);
+    df.connect(masterGain);
   }
 
-  //BASS
-  function playBass(freq, startTime, duration) {
-    if (!ctx) return;
+  function sine(freq, start, dur, amp, attack = 0.08) {
     const osc  = ctx.createOscillator();
     const gain = ctx.createGain();
-
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq * 0.5, startTime);
-
-    gain.gain.setValueAtTime(0, startTime);
-    gain.gain.linearRampToValueAtTime(0.1, startTime + 0.07);
-    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration * 0.8);
-
+    osc.frequency.setValueAtTime(freq, start);
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(amp, start + attack);
+    gain.gain.exponentialRampToValueAtTime(amp * 0.4, start + dur * 0.5);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
     osc.connect(gain);
     gain.connect(masterGain);
-    osc.start(startTime);
-    osc.stop(startTime + duration);
+    if (reverbNode) gain.connect(reverbNode);
+    osc.start(start);
+    osc.stop(start + dur + 0.15);
   }
 
-  //CHORD 
+  function triangle(freq, start, dur, amp) {
+    const osc  = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const filt = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+    osc.type  = 'triangle';
+    osc2.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, start);
+    osc2.frequency.setValueAtTime(freq * 1.003, start);
+    filt.type = 'lowpass';
+    filt.frequency.setValueAtTime(3200, start);
+    filt.Q.setValueAtTime(0.7, start);
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(amp, start + 0.05);
+    gain.gain.exponentialRampToValueAtTime(amp * 0.3, start + dur * 0.6);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    osc.connect(filt);
+    osc2.connect(filt);
+    filt.connect(gain);
+    gain.connect(masterGain);
+    if (reverbNode) gain.connect(reverbNode);
+    if (delayNode)  gain.connect(delayNode);
+    osc.start(start);
+    osc2.start(start);
+    osc.stop(start + dur + 0.2);
+    osc2.stop(start + dur + 0.2);
+  }
+
+  function bell(freq, start, dur, amp) {
+    const osc  = ctx.createOscillator();
+    const mod  = ctx.createOscillator();
+    const modG = ctx.createGain();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    mod.type = 'sine';
+    osc.frequency.setValueAtTime(freq, start);
+    mod.frequency.setValueAtTime(freq * 3.5, start);
+    modG.gain.setValueAtTime(freq * 0.8, start);
+    modG.gain.exponentialRampToValueAtTime(0.01, start + dur * 0.4);
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(amp, start + 0.012);
+    gain.gain.exponentialRampToValueAtTime(amp * 0.18, start + dur * 0.35);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    mod.connect(modG);
+    modG.connect(osc.frequency);
+    osc.connect(gain);
+    gain.connect(masterGain);
+    if (reverbNode) gain.connect(reverbNode);
+    mod.start(start);
+    osc.start(start);
+    mod.stop(start + dur);
+    osc.stop(start + dur + 0.1);
+  }
+
+  function bass(freq, start, dur) {
+    const osc  = ctx.createOscillator();
+    const filt = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq * 0.25, start);
+    filt.type = 'lowpass';
+    filt.frequency.setValueAtTime(280, start);
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(0.14, start + 0.12);
+    gain.gain.exponentialRampToValueAtTime(0.06, start + dur * 0.5);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + dur * 0.85);
+    osc.connect(filt);
+    filt.connect(gain);
+    gain.connect(masterGain);
+    osc.start(start);
+    osc.stop(start + dur);
+  }
+
   function playChord() {
     if (!ctx || !started) return;
+    const roots  = ROOTS[currentRoom] ?? ROOTS[0];
+    const root   = roots[chordIndex % roots.length];
+    const ratios = CHORDS[chordIndex % CHORDS.length];
+    const now    = ctx.currentTime;
+    const dur    = 5.5 + Math.random() * 2.5;
 
-    const roots   = PROGRESSIONS[currentRoom] ?? PROGRESSIONS[0];
-    const root    = roots[chordIndex % roots.length];
-    const ratios  = CHORD_TYPES[chordIndex % CHORD_TYPES.length];
-    const now     = ctx.currentTime;
-    const dur     = 3.0 + Math.random() * 1.8;
-
-    
-    ratios.forEach((ratio, i) => {
-      const octave = i === 0 ? 0.5 : i === 3 ? 2 : 1;
-      playNote(root * ratio * octave, now + i * 0.04, dur, 0.065 - i * 0.008, true);
+    ratios.forEach((r, i) => {
+      const oct = i === 0 ? 0.5 : i >= 3 ? 2 : 1;
+      sine(root * r * oct, now + i * 0.06, dur, 0.055 - i * 0.006);
     });
 
-    playBass(root, now, dur * 0.65);
+    bass(root, now, dur * 0.7);
 
     chordIndex++;
-    chordTimer = setTimeout(playChord, (dur + 0.15 + Math.random() * 0.5) * 1000);
+    chordTimer = setTimeout(playChord, (dur + 0.2 + Math.random() * 0.8) * 1000);
   }
 
-  //MELODY 
- 
+  function playPad() {
+    if (!ctx || !started) return;
+    const roots = ROOTS[currentRoom] ?? ROOTS[0];
+    const root  = roots[chordIndex % roots.length];
+    const dur   = 7.0 + Math.random() * 4.0;
+    const now   = ctx.currentTime;
+
+    [1, 1.4983, 1.8877].forEach((r, i) => {
+      sine(root * r * 0.5, now + i * 0.12, dur, 0.032, 0.4);
+    });
+
+    padTimer = setTimeout(playPad, (dur * 0.6 + Math.random() * 2) * 1000);
+  }
+
   function playMelody() {
     if (!ctx || !started) return;
-
-    const roots = PROGRESSIONS[currentRoom] ?? PROGRESSIONS[0];
+    const roots = ROOTS[currentRoom] ?? ROOTS[0];
     const root  = roots[chordIndex % roots.length];
+    const penta = [1, 1.1225, 1.2599, 1.4983, 1.6818, 2.0, 2.2449];
+    const now   = ctx.currentTime;
 
-   
-    const penta  = [1, 1.1225, 1.2599, 1.4983, 1.6818];
-    const ratio  = penta[Math.floor(Math.random() * penta.length)];
-    const octave = Math.random() < 0.3 ? 4 : 2;
-    const freq   = root * ratio * octave;
-    const dur    = 1.0 + Math.random() * 2.2;
-    const now    = ctx.currentTime;
+    const r1  = penta[Math.floor(Math.random() * penta.length)];
+    const oct = Math.random() < 0.25 ? 4 : Math.random() < 0.5 ? 2 : 3;
+    const dur = 1.8 + Math.random() * 3.5;
 
-    playNote(freq, now, dur, 0.048, true);
-
-    
-    if (Math.random() < 0.3) {
-      const h = penta[Math.floor(Math.random() * penta.length)];
-      playNote(root * h * octave, now + 0.05, dur * 0.8, 0.03, true);
+    if (Math.random() < 0.55) {
+      triangle(root * r1 * oct, now, dur, 0.038);
+    } else {
+      bell(root * r1 * oct, now, dur * 0.7, 0.05);
     }
 
-   
-    melodyTimer = setTimeout(playMelody, (2.0 + Math.random() * 3.5) * 1000);
+    if (Math.random() < 0.25) {
+      const r2 = penta[Math.floor(Math.random() * penta.length)];
+      setTimeout(() => {
+        if (ctx && started) bell(root * r2 * oct, ctx.currentTime, dur * 0.5, 0.028);
+      }, 280 + Math.random() * 400);
+    }
+
+    melodyTimer = setTimeout(playMelody, (2.8 + Math.random() * 4.5) * 1000);
   }
 
-  //START / STOP
   function start() {
     if (started) return;
     started = true;
@@ -158,17 +205,13 @@
     masterGain = ctx.createGain();
     masterGain.gain.setValueAtTime(0, ctx.currentTime);
     masterGain.connect(ctx.destination);
-
     if (ctx.state === 'suspended') ctx.resume();
-
     createReverb();
-
-  
-    masterGain.gain.linearRampToValueAtTime(0.82, ctx.currentTime + 3);
-
-    
-    chordTimer  = setTimeout(playChord,  600);
-    melodyTimer = setTimeout(playMelody, 3000 + Math.random() * 2000);
+    createDelay();
+    masterGain.gain.linearRampToValueAtTime(0.78, ctx.currentTime + 4.5);
+    chordTimer  = setTimeout(playChord,  800);
+    padTimer    = setTimeout(playPad,    1200);
+    melodyTimer = setTimeout(playMelody, 5000 + Math.random() * 3000);
   }
 
   function stop() {
@@ -176,22 +219,19 @@
     started = false;
     clearTimeout(chordTimer);
     clearTimeout(melodyTimer);
+    clearTimeout(padTimer);
     if (!ctx) return;
-    masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 2.5);
-    setTimeout(() => { try { ctx.close(); ctx = null; masterGain = null; } catch(e){} }, 3000);
+    masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 3.5);
+    setTimeout(() => { try { ctx.close(); ctx = null; masterGain = null; } catch(e){} }, 4000);
   }
 
-  //REACTIVITY 
   $: if ($musicPlaying) start(); else stop();
-
-  $: {
-    currentRoom = $room;
-    
-  }
+  $: { currentRoom = $room; }
 
   onDestroy(() => {
     clearTimeout(chordTimer);
     clearTimeout(melodyTimer);
+    clearTimeout(padTimer);
     stop();
   });
 </script>
