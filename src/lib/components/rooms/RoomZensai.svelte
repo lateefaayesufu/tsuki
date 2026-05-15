@@ -300,8 +300,8 @@
               <div class="chapter-rule" aria-hidden="true"></div>
             </div>
             {#each [
-              {title:'Atlas Dashboard', tech:'SvelteKit · D3 · WebGL', desc:'Real-time data viz with live WebGL charts.', tape:'top-left', rot:'-1.2deg', href:'https://github.com/leeyousuf/atlas'},
-              {title:'Grove', tech:'React · Tone.js · Supabase', desc:'Collaborative audio playground for musicians.', tape:'top-right', rot:'0.8deg', href:'https://github.com/leeyousuf/grove'},
+             {title:'EventSphere', tech:'React · MongoDB · PostgreSQL', desc:'Interactive event management with calendar views, RSVP flows, and real-time attendee presence.', tape:'top-left', rot:'-1.2deg', href:'https://eventspheres.vercel.app/', repo:'https://github.com/lateefaayesufu/EventSphere'},
+{title:'Cloud 9 Travels', tech:'HTML · CSS · JavaScript', desc:'A travel website where every destination feels like a dream worth chasing.', tape:'top-right', rot:'0.8deg', href:'https://cloud9travels.netlify.app/', repo:'https://github.com/lateefaayesufu/Cloud-9'},
             ] as p, i}
               <a href={p.href} target="_blank" rel="noopener"
                 class="clipping"
@@ -319,11 +319,37 @@
           </div>
           <div class="page page-right">
             <div class="page-number" aria-hidden="true">6</div>
-            {#each [
-              {title:'Kaho Design System', tech:'Svelte · CSS · Storybook', desc:'50+ accessible animated component primitives.', tape:'top-left', rot:'1.1deg', href:'https://github.com/leeyousuf/kaho'},
-              {title:'Orbit 3D', tech:'Three.js · GSAP · Canvas', desc:'Interactive 3D data exploration, custom shaders.', tape:'top-right', rot:'-0.7deg', href:'https://github.com/leeyousuf/orbit'},
-              {title:'Tsukiyo', tech:'SvelteKit · Canvas · Physics', desc:'This portfolio. A moonlit inn as an experience.', tape:'top-left', rot:'0.5deg', href:'#', featured:true},
-            ] as p, i}
+           {#each [
+ 
+{
+  title: 'Nexus Dashboard',
+  tech: 'Vue · ECharts · Tailwind',
+  desc: 'A real-time data visualization platform with live WebGL charts, streaming pipelines, and a customizable widget system. Built for teams who need to see everything, instantly.',
+  tape: 'top-right',
+  rot: '-0.7deg',
+  href: 'https://ccnexuswatch.vercel.app/',
+  repo: 'https://github.com/lateefaayesufu/nexuswatch'
+},
+  {
+    title: 'Whisperbox',
+    tech: 'WebSockets · TypeScript · E2E Encryption',
+    desc: 'A real-time encrypted messaging app. Messages vanish. Identities stay anonymous. Built for conversations never meant to be kept.',
+    tape: 'top-right',
+    rot: '0.8deg',
+    href: 'https://ccwhisper.vercel.app/',
+    repo: 'https://github.com/lateefaayesufu/whisper'
+  },
+  {
+    title: 'Tsuki — Portfolio',
+    tech: 'SvelteKit · Canvas · CSS physics',
+    desc: 'This portfolio. A moonlit Japanese inn as a navigable web experience — no images, only SVG and Canvas.',
+    tape: 'top-left',
+    rot: '0.5deg',
+    href: 'https://tsukiyo.vercel.app',
+    repo: 'https://github.com/lateefaayesufu/tsuki',
+    featured: true
+  },
+] as p, i}
               <a href={p.href} target="_blank" rel="noopener"
                 class="clipping"
                 class:featured={p.featured}

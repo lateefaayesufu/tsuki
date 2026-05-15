@@ -92,7 +92,7 @@
       desc: 'This very portfolio. A moonlit Japanese inn as a navigable web experience — no images, only SVG and Canvas. A world made of code, shadow, and intent.',
       tags: ['SvelteKit', 'Canvas API', 'CSS physics', 'No images', '58KB gz'],
       color: [240, 232, 208],
-      demo: 'https://lee.vercel.app',
+      demo: 'https://tsukiyo.vercel.app',
       repo: 'https://github.com/lateefaayesufu/tsuki',
       screenshots: [
         { label: '01 — Entry scene' , src: '/tsuki/first.png'   },
