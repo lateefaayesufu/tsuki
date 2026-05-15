@@ -38,3 +38,37 @@ insert into guest_words (word) values
 on conflict do nothing;
 
 
+create table if not exists visitor_stamps (
+  id         bigint generated always as identity primary key,
+  stamp      text not null,
+  created_at timestamptz default now() not null
+);
+
+alter table visitor_stamps enable row level security;
+
+create policy "Public insert"
+  on visitor_stamps for insert
+  with check (true);
+
+create policy "Public read"
+  on visitor_stamps for select
+  using (true);
+
+create table if not exists contact_messages (
+  id           bigint generated always as identity primary key,
+  sender_name  text,
+  sender_email text,
+  message_kind text,
+  message      text not null,
+  created_at   timestamptz default now() not null
+);
+
+alter table contact_messages enable row level security;
+
+create policy "Public insert"
+  on contact_messages for insert
+  with check (length(trim(message)) > 0);
+
+create policy "Public read"
+  on contact_messages for select
+  using (true);
