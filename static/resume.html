@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lee Yousuf — Resume</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Noto+Serif+JP:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f5f0e8;
+        --ink: #1c1410;
+        --ink2: #3a2e20;
+        --amber: #c8920a;
+        --amber2: #e8a020;
+        --muted: #6b5c4a;
+        --rule: rgba(28, 20, 16, 0.12);
+        --font-serif: "Noto Serif JP", serif;
+        --font-mono: "DM Mono", monospace;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .page {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 64px 56px;
+        min-height: 100vh;
+        position: relative;
+      }
+
+      /* Subtle grain */
+      .page::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── HEADER ── */
+      .header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: start;
+        gap: 24px;
+        margin-bottom: 36px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--rule);
+        position: relative;
+      }
+
+      .name {
+        font-family: var(--font-serif);
+        font-size: 38px;
+        font-weight: 300;
+        letter-spacing: -0.02em;
+        line-height: 1;
+        color: var(--ink);
+        margin-bottom: 6px;
+      }
+
+      .name span {
+        color: var(--amber);
+      }
+
+      .title {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 16px;
+      }
+
+      .contact-list {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+      }
+
+      .contact-list li {
+        font-size: 9px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+      }
+
+      .contact-list a {
+        color: var(--muted);
+        text-decoration: none;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .header-kanji {
+        font-family: var(--font-serif);
+        font-size: 52px;
+        color: rgba(28, 20, 16, 0.05);
+        line-height: 1;
+        user-select: none;
+        letter-spacing: 0.1em;
+      }
+
+      /* ── SECTIONS ── */
+      .section {
+        margin-bottom: 32px;
+      }
+
+      .section-label {
+        font-size: 8px;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--amber);
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-label::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--rule);
+      }
+
+      /* ── ENTRY ── */
+      .entry {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0 16px;
+        margin-bottom: 18px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .entry:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .entry-title {
+        font-family: var(--font-serif);
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--ink);
+        margin-bottom: 2px;
+      }
+
+      .entry-org {
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        color: var(--amber);
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+
+      .entry-date {
+        font-size: 9px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        white-space: nowrap;
+        text-align: right;
+        padding-top: 2px;
+      }
+
+      .entry-body {
+        grid-column: 1 / -1;
+      }
+
+      .entry-body p {
+        font-size: 10px;
+        color: var(--ink2);
+        line-height: 1.8;
+        margin-bottom: 4px;
+      }
+
+      .entry-body p::before {
+        content: "—  ";
+        color: var(--rule);
+        font-size: 9px;
+      }
+
+      /* ── SKILLS GRID ── */
+      .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px 24px;
+      }
+
+      .skill-group-label {
+        font-size: 8px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+
+      .skill-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+
+      .tag {
+        font-size: 8px;
+        letter-spacing: 0.1em;
+        padding: 2px 7px;
+        border: 1px solid var(--rule);
+        color: var(--ink2);
+        border-radius: 1px;
+      }
+
+      /* ── PROJECTS ── */
+      .project {
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--rule);
+      }
+      .project:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 4px;
+      }
+
+      .project-name {
+        font-family: var(--font-serif);
+        font-size: 12px;
+        color: var(--ink);
+      }
+
+      .project-stack {
+        font-size: 8px;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+      }
+
+      .project-desc {
+        font-size: 10px;
+        color: var(--ink2);
+        line-height: 1.8;
+      }
+
+      /* ── FOOTER ── */
+      .footer {
+        margin-top: 40px;
+        padding-top: 16px;
+        border-top: 1px solid var(--rule);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .footer-note {
+        font-size: 8px;
+        color: var(--muted);
+        letter-spacing: 0.18em;
+        opacity: 0.6;
+      }
+
+      .footer-stamp {
+        font-family: var(--font-serif);
+        font-size: 16px;
+        color: rgba(200, 146, 10, 0.2);
+        letter-spacing: 0.3em;
+        border: 2px solid rgba(200, 146, 10, 0.15);
+        padding: 4px 10px;
+        transform: rotate(-2deg);
+      }
+
+      @media print {
+        body {
+          background: white;
+        }
+        .page {
+          padding: 32px 40px;
+        }
+        .page::before {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- HEADER -->
+      <header class="header">
+        <div>
+          <h1 class="name">Lee <span>Yousuf</span></h1>
+          <p class="title">Electrical & Aerospace Engineering</p>
+          <ul class="contact-list">
+            <li>California, USA</li>
+            <li>
+              <a href="mailto:leeyoussuf@gmail.com">leeyoussuf@gmail.com</a>
+            </li>
+            <li>
+              <a href="https://github.com/leeyousuf">github.com/leeyousuf</a>
+            </li>
+            <li>
+              <a href="https://linkedin.com/in/lateefaayesufu">linkedin</a>
+            </li>
+          </ul>
+        </div>
+        <div class="header-kanji" aria-hidden="true">月夜</div>
+      </header>
+
+      <!-- EDUCATION -->
+      <section class="section">
+        <div class="section-label">Education</div>
+
+        <div class="entry">
+          <div>
+            <div class="entry-title">
+              B.Eng. Electrical & Electronic Engineering
+            </div>
+            <div class="entry-org">Stanford Univeristy</div>
+          </div>
+          <div class="entry-date">2026 — Present</div>
+          <div class="entry-body">
+            <p>
+              Coursework in embedded systems, control theory, signal processing,
+              and electromagnetic fields
+            </p>
+            <p>
+              Final-year project: autonomous UAV navigation using PID
+              controllers and sensor fusion
+            </p>
+            <p>GPA: 5.0 / 5.0 · Dean's List</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div>
+            <div class="entry-title">Frontend Engineering Track</div>
+            <div class="entry-org">Cohort 14</div>
+          </div>
+          <div class="entry-date">2024</div>
+          <div class="entry-body">
+            <p>
+              Intensive frontend programme covering Svelte, SvelteKit, React,
+              and UI/UX engineering
+            </p>
+            <p>
+              Built tsukiyo — an immersive, animated portfolio experience with a
+              Lighthouse score of 90+
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXPERIENCE -->
+      <section class="section">
+        <div class="section-label">Experience</div>
+
+        <div class="entry">
+          <div>
+            <div class="entry-title">Embedded Systems Intern</div>
+            <div class="entry-org">Verdant Systems · Lagos</div>
+          </div>
+          <div class="entry-date">Jun — Sep 2024</div>
+          <div class="entry-body">
+            <p>
+              Developed firmware in C for STM32 microcontrollers managing sensor
+              data acquisition pipelines
+            </p>
+            <p>
+              Reduced power draw by 18% via duty-cycle optimization on UART
+              communication modules
+            </p>
+            <p>
+              Built a real-time telemetry dashboard in React to visualise live
+              sensor streams over WebSocket
+            </p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div>
+            <div class="entry-title">Avionics Research Assistant</div>
+            <div class="entry-org">UNILAG Aerospace & Systems Lab</div>
+          </div>
+          <div class="entry-date">Jan — May 2024</div>
+          <div class="entry-body">
+            <p>
+              Assisted in design and testing of a CubeSat attitude determination
+              system using magnetometers and gyroscopes
+            </p>
+            <p>
+              Wrote Python scripts for post-flight data analysis and orbit
+              propagation simulation (SGP4)
+            </p>
+            <p>
+              Co-authored internal technical report on sensor fusion algorithms
+              for low-Earth orbit applications
+            </p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div>
+            <div class="entry-title">Frontend Developer (Freelance)</div>
+            <div class="entry-org">Self-employed</div>
+          </div>
+          <div class="entry-date">2023 — Present</div>
+          <div class="entry-body">
+            <p>
+              Designed and shipped 6 client websites using SvelteKit, with a
+              focus on animation and performance
+            </p>
+            <p>
+              Integrated Supabase backends for real-time features including live
+              guestbooks and presence tracking
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROJECTS -->
+      <section class="section">
+        <div class="section-label">Projects</div>
+
+        <div class="project">
+          <div class="project-header">
+            <span class="project-name">tsukiyo · 月夜</span>
+            <span class="project-stack"
+              >SvelteKit · Web Audio API · Supabase · Canvas</span
+            >
+          </div>
+          <p class="project-desc">
+            Immersive Japanese inn portfolio with parallax scene, procedural
+            audio engine, animated canvas stars, real-time presence tracking,
+            and a hidden haiku easter egg. Lighthouse 90+ on mobile.
+          </p>
+        </div>
+
+        <div class="project">
+          <div class="project-header">
+            <span class="project-name">UAV Path Planner</span>
+            <span class="project-stack"
+              >Python · NumPy · Matplotlib · ROS2</span
+            >
+          </div>
+          <p class="project-desc">
+            A* and Dijkstra-based path planning for autonomous UAVs in
+            obstacle-dense environments. Includes 3D visualisation of planned
+            trajectories and real-time obstacle avoidance simulation.
+          </p>
+        </div>
+
+        <div class="project">
+          <div class="project-header">
+            <span class="project-name">LiveTelemetry Dashboard</span>
+            <span class="project-stack"
+              >React · WebSocket · Chart.js · FastAPI</span
+            >
+          </div>
+          <p class="project-desc">
+            Real-time sensor dashboard for STM32-based hardware. Streams
+            accelerometer, temperature, and voltage data at 100Hz with live
+            chart rendering and threshold alerting.
+          </p>
+        </div>
+      </section>
+
+      <!-- SKILLS -->
+      <section class="section">
+        <div class="section-label">Skills</div>
+        <div class="skills-grid">
+          <div>
+            <div class="skill-group-label">Engineering</div>
+            <div class="skill-tags">
+              <span class="tag">Circuit Design</span>
+              <span class="tag">Embedded C</span>
+              <span class="tag">STM32</span>
+              <span class="tag">MATLAB</span>
+              <span class="tag">Signal Processing</span>
+              <span class="tag">PID Control</span>
+              <span class="tag">ROS2</span>
+            </div>
+          </div>
+          <div>
+            <div class="skill-group-label">Frontend</div>
+            <div class="skill-tags">
+              <span class="tag">Svelte / SvelteKit</span>
+              <span class="tag">React</span>
+              <span class="tag">TypeScript</span>
+              <span class="tag">Canvas API</span>
+              <span class="tag">Web Audio API</span>
+              <span class="tag">CSS Animation</span>
+            </div>
+          </div>
+          <div>
+            <div class="skill-group-label">Tools & Other</div>
+            <div class="skill-tags">
+              <span class="tag">Python</span>
+              <span class="tag">Git</span>
+              <span class="tag">Supabase</span>
+              <span class="tag">Figma</span>
+              <span class="tag">KiCad</span>
+              <span class="tag">Linux</span>
+              <span class="tag">NumPy</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="footer">
+        <span class="footer-note"
+          >references available on request · last updated may 2026</span
+        >
+        <span class="footer-stamp">月夜</span>
+      </footer>
+    </div>
+  </body>
+</html>
